@@ -1,0 +1,37 @@
+*{
+    margin: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+input[type=button]{
+    float: right;
+    cursor: pointer;
+}
+#bigDiv{
+    display: flex;
+}
+#Div{
+    width: min-content;
+    float: left;    
+    border: 1px solid #A9A9A9;
+}
+table{
+    border-spacing: 5px;
+    border: 1px solid #A9A9A9;
+    overflow: scroll;
+}
+th{
+    border: 1px solid #A9A9A9;
+    padding: 5px;
+}
+canvas{
+    float: right;
+    border: 1px solid #A9A9A9;
+}
+#tableDiv{
+    height: 660px;
+    width: min-content;
+    overflow-y: scroll;
+}
+textarea {
+    resize: none;
+}
