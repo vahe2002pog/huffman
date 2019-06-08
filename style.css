@@ -7,7 +7,7 @@ input[type=button]{
     cursor: pointer;
 }
 #bigDiv{
-    display: flex;
+    display: table-row;
 }
 #Div{
     width: min-content;
@@ -23,12 +23,16 @@ th{
     border: 1px solid #A9A9A9;
     padding: 5px;
 }
+td{
+    border: 1px solid #A9A9A9;
+    padding: 2px;
+}
 canvas{
     float: right;
     border: 1px solid #A9A9A9;
 }
 #tableDiv{
-    height: 660px;
+    height: 659px;
     width: min-content;
     overflow-y: scroll;
 }
