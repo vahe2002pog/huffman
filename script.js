@@ -4,10 +4,15 @@ ctx.font = "18pt Arial";
 let treeX = 50; treeY = 80;
 let arrClone = [];
 let W = 20;
+let context = ctx;
+let canvasSave = $("#canvasSave").get(0);
+let contx = canvasSave.getContext("2d");
+
+let arr = [];
 
 function Calculate(){
     let str = textValue = $("#textBox").val(); 
-    let arr = [];
+    arr = [];
     while(str.length > 0){
         let s = str[0];
         let o = str.match(new RegExp(`${s}`,"g") || []).length;
@@ -16,23 +21,22 @@ function Calculate(){
             val: o
         });
         for(o; o > 0; o--)
-            str = str.replace(s,'');
+        str = str.replace(s,'');
     }
     getCodes(arr);
     mySort(arr);
     $('#textArea').val(codingText(textValue,arr));
-
+    $("#buttonSave").prop('disabled',false);
+    context = ctx;
     ctx.clearRect(0, 0, Canvas.width, Canvas.height);
 
     $("#tableInfo").find("tr:gt(0)").remove();
     for(let i = 0; i < arr.length; i++){
         $('#tableInfo').append(`<tr><td>${arr[i].char}</td><td>${arr[i].val}</td><td>${arr[i].code}</td></tr>`);
-        //drawTree(arr[i].code,arr[i].char,0,0);
     }
     console.log(arrClone);
-    /////////////////////////////////////////////////////////////////
-    W = 350 / Math.pow(maximum(arr), 2);
-    W = W < 15 ?  15 : W;
+    
+    
     anyFunctionDo(arrClone[0], {x:350, y:10}, Math.pow(maximum(arr), 2));
     anyFunctionDo1(arrClone[0]);
 }
@@ -93,18 +97,6 @@ function getIndexCon(ch,arr){
         }
     }
 }
-function getNum(code){
-    let ch = code[0];
-    let m = 0;
-    for (let i = 1; i < code.length; i++) {
-        if(code[i] != ch){
-            m++;
-            ch = code[i];
-        }      
-    }
-    return m;
-}
-
 function anyFunctionDo(obj, pos, n) {
     
     obj.pos = pos;
@@ -118,25 +110,16 @@ function anyFunctionDo(obj, pos, n) {
         }
     }
     
-    obj.getPos = getpos;
-        
+    obj.getPos = getpos;        
     
     const w = W;
 
     if(!obj.ch1.char) {        
         anyFunctionDo(obj.ch1, {x: w*n, y: 80},n/2);
     }
-    // else {
-    //     let m = getNum(obj.ch1.code);
-    //     pos.x -= w*m;
-    // }
     if(!obj.ch2.char) {
         anyFunctionDo(obj.ch2, {x: -w*n, y: 80},n/2);
     }
-    // else {
-    //     let m = getNum(obj.ch2.code);
-    //     pos.x += w*m;
-    // }
     obj.ch1.getPos = getpos;
     obj.ch2.getPos = getpos;
     obj.ch1.pos = pos;
@@ -177,24 +160,48 @@ function anyFunctionDo1(obj) {
 function draw(begin, end, code, char) {
     begin.x
     begin.y
-    ctx.beginPath();
-    ctx.moveTo(begin.x, begin.y);    
-    ctx.lineTo(end.x, end.y );
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(begin.x, begin.y, 5, 0, 2 * Math.PI);        
-    ctx.fill();
-    ctx.fillText(code,begin.x  +  (end.x - begin.x)/2 + ((code ==='1') ? -11 : 0), begin.y  +  (end.y - begin.y)/2);
+    context.beginPath();
+    context.moveTo(begin.x, begin.y);    
+    context.lineTo(end.x, end.y );
+    context.stroke();
+    context.beginPath();
+    context.arc(begin.x, begin.y, 5, 0, 2 * Math.PI);        
+    context.fill();
+    context.fillText(code,begin.x  +  (end.x - begin.x)/2 + ((code ==='1') ? -11 : 0), begin.y  +  (end.y - begin.y)/2);
     
     if(char){
-        ctx.fillStyle = "#FFFFFF";
-        ctx.beginPath();
-        ctx.arc(end.x, end.y, 15, 0, 2 * Math.PI);        
-        ctx.fill();
-        ctx.fillStyle = "#000000";
-        ctx.beginPath();
-        ctx.arc(end.x, end.y, 15, 0, 2 * Math.PI);        
-        ctx.stroke();
-        ctx.fillText(char,end.x -7, end.y +7);
+        context.clearRect(end.x-15, end.y-15, 30,30);
+        context.beginPath();
+        context.arc(end.x, end.y, 15, 0, 2 * Math.PI);        
+        context.stroke();
+        context.fillText(char,end.x -7, end.y +7);
     }
 }
+
+function Save(){
+    canvasSave.width = Math.pow(maximum(arr)+2, 2)*60;
+    canvasSave.height = (maximum(arr) + 1) * 80;
+    contx.clearRect(0, 0, canvasSave.width, canvasSave.height);
+
+    contx.font = "18pt Arial";    
+    context = contx;
+    arrClone[0].pos.x = canvasSave.width/4;
+    anyFunctionDo1(arrClone[0]);
+
+    let image = getImage();
+    saveImage(image);
+    
+}
+function getImage(){
+    let imageData = canvasSave.toDataURL();
+    let image = new Image();
+    image.src = imageData;
+    return image;
+} 
+function saveImage(image) {
+    let link = document.createElement("a");
+ 
+    link.setAttribute("href", image.src);
+    link.setAttribute("download", "Tree");
+    link.click();
+} 
