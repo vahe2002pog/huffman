@@ -3,9 +3,10 @@ let ctx = Canvas.getContext("2d");
 ctx.font = "18pt Arial";
 let treeX = 50; treeY = 80;
 let arrClone = [];
+let W = 20;
 
 function Calculate(){
-    let str = textValue = $("#textBox").val();
+    let str = textValue = $("#textBox").val(); 
     let arr = [];
     while(str.length > 0){
         let s = str[0];
@@ -30,7 +31,9 @@ function Calculate(){
     }
     console.log(arrClone);
     /////////////////////////////////////////////////////////////////
-    anyFunctionDo(arrClone[0], {x:700, y:50});
+    W = 350 / Math.pow(maximum(arr), 2);
+    W = W < 15 ?  15 : W;
+    anyFunctionDo(arrClone[0], {x:350, y:10}, Math.pow(maximum(arr), 2));
     anyFunctionDo1(arrClone[0]);
 }
 function getCodes(arr){
@@ -50,7 +53,6 @@ function getCodes(arr){
         res.ch1.parent = arrClone[0];
         res.ch2.parent = arrClone[0];
     }
-
     for (let i = 0; i < arr.length; i++) {
         let code = '';
         let ptr = arr[i];
@@ -66,6 +68,16 @@ function mySort(_arr){
         return a.val - b.val;
     });
 }
+
+function maximum(_arr){
+    m = 0;
+    for(let i = 0; i<_arr.length;i++){
+        if(_arr[i].code.length > m)
+            m = _arr[i].code.length;
+    }
+    return m;
+}
+
 function codingText(text,arr){
     let str = "";
     for(let i = 0; i < text.length; i++){
@@ -81,74 +93,85 @@ function getIndexCon(ch,arr){
         }
     }
 }
+function getNum(code){
+    let ch = code[0];
+    let m = 0;
+    for (let i = 1; i < code.length; i++) {
+        if(code[i] != ch){
+            m++;
+            ch = code[i];
+        }      
+    }
+    return m;
+}
 
-function anyFunctionDo(obj, pos, v = 0, n = 1) {
-    const w = 50;
-    a = 1;
-    //obj.pos = pos;
-    obj.ch1.pos = pos;
-    obj.ch2.pos = pos;
-
-    obj.ch1.upd = function(n) {
-        if(this.parent){
-            if(this.parent.pos) {
-                if (n < 0 && this.num == '0') {
-                    this.parent.pos.x += n;
-                    console.log(n);
-                    console.log(this);
-                }
-            }
-            if (this.parent.ubd)
-                this.parent.upd(n);
+function anyFunctionDo(obj, pos, n) {
+    
+    obj.pos = pos;
+    let getpos = function() {
+        return this.parent ? {
+            x: this.pos.x + this.parent.getPos().x,
+            y: this.pos.y + this.parent.getPos().y,
+        } : {
+            x: this.pos.x,
+            y: this.pos.y,
         }
     }
-    obj.ch2.upd = obj.ch1.upd;
-    if(!obj.ch1.char) {
-        anyFunctionDo(obj.ch1, {x: pos.x + w*n, y: pos.y + 80}, v, n / a);
-        obj.ch1.upd(50);
+    
+    obj.getPos = getpos;
+        
+    
+    const w = W;
+
+    if(!obj.ch1.char) {        
+        anyFunctionDo(obj.ch1, {x: w*n, y: 80},n/2);
     }
+    // else {
+    //     let m = getNum(obj.ch1.code);
+    //     pos.x -= w*m;
+    // }
     if(!obj.ch2.char) {
-        anyFunctionDo(obj.ch2, {x: pos.x - w*n, y: pos.y + 80}, v, n / a);
-        obj.ch2.upd(-50);
+        anyFunctionDo(obj.ch2, {x: -w*n, y: 80},n/2);
     }
-    //vfvf vskf hfve
-
-
-    //draw(pos, {x:pos.x + w*n, y: pos.y + 80}, "0", obj.ch1.char);
-    //draw(pos, {x:pos.x - w*n, y: pos.y + 80}, "1", obj.ch2.char);
+    // else {
+    //     let m = getNum(obj.ch2.code);
+    //     pos.x += w*m;
+    // }
+    obj.ch1.getPos = getpos;
+    obj.ch2.getPos = getpos;
+    obj.ch1.pos = pos;
+    obj.ch2.pos = pos;
 }
 
 
 function anyFunctionDo1(obj) {
-    const w = 17;
     if(!obj.ch1.char) {
         anyFunctionDo1(obj.ch1);
     } 
     if(!obj.ch2.char) {
         anyFunctionDo1(obj.ch2);
     }
-    //vfvf vskf hfve
+
 
     if(obj.ch1.ch1) {
-        draw(obj.ch1.pos, {x:obj.ch1.ch1.pos.x, y: obj.ch1.ch1.pos.y}, "0", obj.ch1.char);
+        draw(obj.ch1.getPos(), {x:obj.ch1.ch1.getPos().x, y: obj.ch1.ch1.getPos().y}, "0", obj.ch1.char);
     } else {
         if(obj.ch1.ch2) {
-            draw(obj.ch1.pos, {x:obj.ch1.ch2.pos.x, y: obj.ch1.ch2.pos.y}, "0", obj.ch1.char);
+            draw(obj.ch1.getPos(), {x:obj.ch1.ch2.getPos().x, y: obj.ch1.ch2.getPos().y}, "0", obj.ch1.char);
         } else {
-            draw(obj.ch1.pos, {x:obj.ch1.pos.x + 50, y: obj.ch1.pos.y + 80}, "0", obj.ch1.char);
+            draw(obj.ch1.getPos(), {x:obj.ch1.getPos().x + W, y: obj.ch1.getPos().y + 80}, "0", obj.ch1.char);
         }
     }
     if(obj.ch2.ch1) {
-        draw(obj.ch2.pos, {x:obj.ch2.ch1.pos.x, y: obj.ch2.ch1.pos.y}, "1", obj.ch2.char);
+        draw(obj.ch2.getPos(), {x:obj.ch2.ch1.getPos().x, y: obj.ch2.ch1.getPos().y}, "1", obj.ch2.char);
     } else {
         if(obj.ch2.ch2) {
-            draw(obj.ch2.pos, {x:obj.ch2.ch2.pos.x, y: obj.ch2.ch2.pos.y}, "1", obj.ch2.char);
+            draw(obj.ch2.getPos(), {x:obj.ch2.ch2.getPos().x, y: obj.ch2.ch2.getPos().y}, "1", obj.ch2.char);
         } else {
-            draw(obj.ch2.pos, {x:obj.ch2.pos.x - 50, y: obj.ch2.pos.y + 80}, "1", obj.ch2.char);
+            draw(obj.ch2.getPos(), {x:obj.ch2.getPos().x - W, y: obj.ch2.getPos().y + 80}, "1", obj.ch2.char);
         }
     }
     
-    //draw(obj.ch2.pos, {x:obj.ch2.ch1.pos.x - w, y: obj.ch2.ch1.pos.y}, "1", obj.ch2.char);
 }
 
 function draw(begin, end, code, char) {
